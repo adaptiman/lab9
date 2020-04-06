@@ -1,5 +1,5 @@
 <a id="top"></a>
-<img src="images/dockerhublogo.png" alt="docker logo">
+<img src="images/logo.png" alt="docker logo">
 
 *Learn to build and deploy your distributed applications easily to the cloud with Docker*
 
