@@ -30,7 +30,7 @@ Containers take a different approach: by leveraging the low-level mechanics of t
 Docker's rise has been nothing short of meteoric. Although containers by themselves are not a new technology, it was not until Docker arrived that they started to get mainstream attention. By providing standard APIs that made containers easy to use and creating a way for the community to collaborate around libraries of containers, Docker has radically changed the face of the technology landscape. In an article published by [The Register](http://www.theregister.co.uk/2014/05/23/google_containerization_two_billion/) in mid-2014, it was claimed that Google runs over **two billion containers per week**.
 
 **Google Trends for 'Docker'**
-<img src="https://raw.githubusercontent.com/prakhar1989/docker-curriculum/master/images/interest.png" title="interest">
+<img src="images/interest.png" title="interest">
 
 In addition to Docker's continual growth, Docker, Inc., the developer behind Docker has been valued at over a billion dollars! Due to its benefits of efficiency and portability, Docker has been gaining mind share rapidly, and is now leading the **Containerization** movement. As developers going out into the world, it is important that we understand this trend and see how we can benefit from it.
 
@@ -272,7 +272,7 @@ You can also specify a custom port to which the client will forward connections 
 $ docker run -p 8888:80 prakhar1989/static-site
 Nginx is running...
 ```
-<img src="https://raw.githubusercontent.com/prakhar1989/docker-curriculum/master/images/static.png" title="static">
+<img src="images/static.png" title="static">
 
 To stop a detached container, run `docker stop` by giving the container ID. 
 
@@ -411,7 +411,7 @@ $ docker run -p 8888:5000 prakhar1989/catnip
 ```
 Head over to the URL specified, where your app should be live.
 
-<img src="https://raw.githubusercontent.com/prakhar1989/docker-curriculum/master/images/catgif.png" title="static">
+<img src="images/catgif.png" title="static">
 
 Congratulations! You have successfully created your first docker image.
 
