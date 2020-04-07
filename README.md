@@ -48,6 +48,7 @@ This document contains a series of several sections, each of which explains a pa
 -	[Setting up your Docker Virtual Machine](#setup)
     - [Setting up your local machine](#lm)
     - [Creating an Azure VM](#vm)
+    - [Cloning the Lab 9 Repo](#repo)
     - [Setting up Docker](#docker)
 - [1.0 Playing with Busybox](#busybox)
   - [1.1 Docker Run](#dockerrun)
@@ -106,6 +107,17 @@ By this point, you should have an Azure login account and subscription. I've mad
 
 Once this image is created, connect to it using puTTY.
 > TIP: This setup is NOT a free Azure service. I would suggest that you stop your Docker VM when you're not using it so that your Azure credit is not continually charged.
+
+<a id="repo"></a>
+#### Cloning the Lab 9 Repo
+
+Now that your VM is up and running, take a minute to clone the Lab 9 repo so you'll have a copy of the lab files in your VM:
+
+```
+$ cd ~
+$ git clone git@github.com:adaptiman/lab9.git
+```
+
 
 <a id="docker"></a>
 #### Installing Docker in your VM
@@ -263,7 +275,7 @@ $ docker port static-site
 443/tcp -> 0.0.0.0:32768
 ```
 
-You can open [http://localhost:32769](http://localhost:32769) in your browser. 
+You can open [http://localhost:32769](http://localhost:32769) in your browser. What? It didn't work? Hmm. Well, do you have the host port open on your machine? For example, if you're running this container on a cloud-based VM, chances are you must explicitly open the port for it to be exposed to the world.
 
 > Note: If you're using docker-toolbox, then you might need to use `docker-machine ip default` to get the IP. 
 
@@ -283,7 +295,7 @@ I'm sure you agree that was super simple. To deploy this on a real server you wo
 <a id="docker-images"></a>
 ### 2.2 Docker Images
 
-We've looked at images before, but in this section we'll dive deeper into what Docker images are and build our own image! Lastly, we'll also use that image to run our application locally and finally deploy on [AWS](http://aws.amazon.com) to share it with our friends! Excited? Great! Let's get started.
+We've looked at images before, but in this section we'll dive deeper into what Docker images are and build our own image! Lastly, we'll also use that image to run our application locally and finally deploy on [Azure](http://portal.azure.com) to share it with our friends! Excited? Great! Let's get started.
 
 Docker images are the basis of containers. In the previous example, we **pulled** the *Busybox* image from the registry and asked the Docker client to run a container **based** on that image. To see the list of images that are available locally, use the `docker images` command.
 
@@ -303,7 +315,7 @@ The above gives a list of images that I've pulled from the registry, along with 
 
 For simplicity, you can think of an image akin to a git repository - images can be [committed](https://docs.docker.com/engine/reference/commandline/commit/) with changes and have multiple versions. If you don't provide a specific version number, the client defaults to `latest`. For example, you can pull a specific version of `ubuntu` image
 ```
-$ docker pull ubuntu:12.04
+$ docker pull ubuntu:18.04
 ```
 
 To get a new Docker image you can either get it from a registry (such as the Docker Hub) or create your own. There are tens of thousands of images available on [Docker Hub](https://hub.docker.com/explore/). You can also search for images directly from the command line using `docker search`.
@@ -323,7 +335,13 @@ Then there are official and user images, which can be both base and child images
 <a id="our-image"></a>
 ### 2.3 Our First Image
 
-Now that we have a better understanding of images, it's time to create our own. Our goal in this section will be to create an image that sandboxes a simple [Flask](http://flask.pocoo.org) application. For the purposes of this workshop, I've already created a fun little [Flask app](https://github.com/prakhar1989/docker-curriculum/tree/master/flask-app) that displays a random cat `.gif` every time it is loaded - because you know, who doesn't like cats? If you haven't already, please go ahead and clone the repository locally.
+Now that we have a better understanding of images, it's time to create our own. Our goal in this section will be to create an image that sandboxes a simple [Flask](http://flask.pocoo.org) application. For the purposes of this workshop, I've already created a fun little [Flask app](https://github.com/prakhar1989/docker-curriculum/tree/master/flask-app) that displays a random cat `.gif` every time it is loaded - because you know, who doesn't like cats? 
+
+If you haven't already, please go ahead and clone the repository locally.
+
+```
+$ git clone git@github.com:prakhar1989/docker-curriculum.git
+```
 
 Before we get started creating the image, let's first test that the application works correctly locally. Step one is to `cd` into the `flask-app` directory and install the dependencies
 ```
