@@ -38,13 +38,13 @@ In addition to Docker's continual growth, Docker, Inc., the developer behind Doc
 This tutorial aims to be the one-stop shop for getting your hands dirty with Docker. Apart from demystifying the Docker landscape, it'll give you hands-on experience with building and deploying your own webapps on the Cloud. We'll be using [Azure Web Services](http://portal.azure.com) to deploy a static website. Even if you have no prior experience with deployments, this tutorial should be all you need to get started.
 
 ## Using this Document
-This document contains a series of several sections, each of which explains a particular aspect of Docker. In each section, we will be typing commands (or writing code). All the code used in the tutorial is available in the [Github repo](http://github.com/adaptiman/docker-curriculum).
+This document contains a series of several sections, each of which explains a particular aspect of Docker. In each section, we will be typing commands (or writing code).
 
 <a href="#top" class="top" id="table-of-contents">Top</a>
 ## Table of Contents
 
 -	[Preface](#preface)
--	[Prerequisites](#prerequisites)
+-	[Pre-requisites](#prerequisites)
 -	[Setting up your Docker Virtual Machine](#setup)
     - [Setting up your local machine](#lm)
     - [Creating an Azure VM](#vm)
@@ -105,6 +105,7 @@ By this point, you should have an Azure login account and subscription. I've mad
 * Setup SSH rather than username and password. You will need to copy the public key you created when you installed puTTY.
 
 Once this image is created, connect to it using puTTY.
+> TIP: This setup is NOT a free Azure service. I would suggest that you stop your Docker VM when you're not using it so that your Azure credit is not continually charged.
 
 <a id="docker"></a>
 #### Installing Docker in your VM
