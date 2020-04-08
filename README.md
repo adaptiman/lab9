@@ -508,32 +508,15 @@ The following screen is shown below.
 - Click `Review + Create`
 - If there are no errors, Click `Create`
  
-While we wait, let's quickly see what the `Dockerrun.aws.json` file contains. This file is basically an AWS specific file that tells EB details about our application and docker configuration.
+While we wait, you should know that is also possible to generate scripts that will clone the resource you just created. After it finishes deploying, go the resource's page, and click on `Get publish profile` at the top of the screen. This will download an XML file with the necessary information to duplicate this resource.
 
-```
-{
-  "AWSEBDockerrunVersion": "1",
-  "Image": {
-    "Name": "prakhar1989/catnip",
-    "Update": "true"
-  },
-  "Ports": [
-    {
-      "ContainerPort": "5000"
-    }
-  ],
-  "Logging": "/var/log/nginx"
-}
-```
-The file should be pretty self-explanatory, but you can always [reference](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create_deploy_docker_image.html#create_deploy_docker_image_dockerrun) the official documentation for more information. We provide the name of the image that EB should use along with a port that the container should open.
+Hopefully by now, our instance should be ready. Head over to the  resource's page and you should see the associated information, including the public address of the app resource.
 
-Hopefully by now, our instance should be ready. Head over to the EB page and you should a green tick indicating that your app is alive and kicking.
-
-<img src="images/eb-deploy.png" title="static">
+<img src="images/app-service-status.gif" title="static">
 
 Go ahead and open the URL in your browser and you should see the application in all its glory. Feel free to email / IM / snapchat this link to your friends and family so that they can enjoy a few cat gifs, too.
 
-Congratulations! You have deployed your first Docker application! That might seem like a lot of steps, but with the command-line tool for EB you can almost mimic the functionality of Heroku in a few keystrokes! Hopefully you agree that Docker takes away a lot of the pains of building and deploying applications in the cloud. I would encourage you to read the AWS [documentation](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/docker-singlecontainer-deploy.html) on single-container Docker environments to get an idea of what features exist.
+Congratulations! You have deployed your first Docker application in Azure App Services! That might seem like a lot of steps, but with the command-line tool for Azure, you can automate the entire process in a few keystrokes! Hopefully you agree that Docker takes away a lot of the pains of building and deploying applications in the cloud. I would encourage you to read about diferent type of [Azure containers](https://azure.microsoft.com/en-us/product-categories/containers/) to get an idea of what features exist.
 
 In the next (and final) part of the tutorial, we'll up the ante a bit and deploy an application that mimics the real-world more closely; an app with a persistent back-end storage tier. Let's get straight to it!
 
@@ -563,33 +546,64 @@ Great, so we need two containers. That shouldn't be hard right? We've already bu
 
 ```
 $ docker search elasticsearch
-NAME                              DESCRIPTION                                     STARS     OFFICIAL   AUTOMATED
-elasticsearch                     Elasticsearch is a powerful open source se...   697       [OK]
-itzg/elasticsearch                Provides an easily configurable Elasticsea...   17                   [OK]
-tutum/elasticsearch               Elasticsearch image - listens in port 9200.     15                   [OK]
-barnybug/elasticsearch            Latest Elasticsearch 1.7.2 and previous re...   15                   [OK]
-digitalwonderland/elasticsearch   Latest Elasticsearch with Marvel & Kibana       12                   [OK]
-monsantoco/elasticsearch          ElasticSearch Docker image                      9                    [OK]
+NAME                                 DESCRIPTION                                     STARS
+elasticsearch                        Elasticsearch is a powerful open source sear…   4271
+nshou/elasticsearch-kibana           Elasticsearch-7.5.1 Kibana-7.5.1                118
+itzg/elasticsearch                   Provides an easily configurable Elasticsearc…   70 
+mobz/elasticsearch-head              elasticsearch-head front-end and standalone …   58
+elastichq/elasticsearch-hq           Official Docker image for ElasticHQ: Elastic…   48
+elastic/elasticsearch                The Elasticsearch Docker image maintained by…   30
+bitnami/elasticsearch                Bitnami Docker Image for Elasticsearch          28
+taskrabbit/elasticsearch-dump        Import and export tools for elasticsearch       20
+lmenezes/elasticsearch-kopf          elasticsearch kopf                              18
+barnybug/elasticsearch               Latest Elasticsearch 1.7.2 and previous rele…   17
+esystemstech/elasticsearch           Debian based Elasticsearch packing for Lifer…   15
+justwatch/elasticsearch_exporter     Elasticsearch stats exporter for Prometheus     14
+monsantoco/elasticsearch             ElasticSearch Docker image                      11
+blacktop/elasticsearch               Alpine Linux based Elasticsearch Docker Image   11
+mesoscloud/elasticsearch             [UNMAINTAINED] Elasticsearch                    9
+centerforopenscience/elasticsearch   Elasticsearch                                   4
+barchart/elasticsearch-aws           Elasticsearch AWS node                          3
+dtagdevsec/elasticsearch             elasticsearch                                   3
+bitnami/elasticsearch-exporter       Bitnami Elasticsearch Exporter Docker Image     2
+jetstack/elasticsearch-pet           An elasticsearch image for kubernetes PetSets   1
+phenompeople/elasticsearch           Elasticsearch is a powerful open source sear…   1
+axway/elasticsearch-docker-beat      "Beat" extension to read logs of containers …   1
+wreulicke/elasticsearch              elasticsearch                                   0
+18fgsa/elasticsearch-ha              Built from https://github.com/18F/kubernetes…   0
+18fgsa/elasticsearch                 Built from https://github.com/docker-library…   0
+adaptiman
 ```
 
-Quite unsurprisingly, there exists an officially supported [image](https://hub.docker.com/_/elasticsearch/) for Elasticsearch. To get ES running, we can simply use `docker run` and have a single-node ES container running locally within no time.
+Quite unsurprisingly, there exists an officially supported [image](https://hub.docker.com/_/elasticsearch/) for Elasticsearch. To get ES running, we can simply use `docker run` and have a single-node ES container running locally within no time. Note that currently, there are issues with the Docker elasticsearch image, and so we'll use the published image from the creator
 ```
-$ docker run -dp 9200:9200 elasticsearch
-d582e031a005f41eea704cdc6b21e62e7a8a42021297ce7ce123b945ae3d3763
+$ docker run -d -p 9200:9200 -p 9300:9300 \
+>     -e "discovery.type=single-node" \
+>     docker.elastic.co/elasticsearch/elasticsearch:7.6.2
+224a97d6bc54829f8be84b48d230f06ff316d07da150c1a4df4e74baeceeb5a3
+```
+Test the container:
 
+```
 $ curl 0.0.0.0:9200
 {
-  "name" : "Ultra-Marine",
-  "cluster_name" : "elasticsearch",
+  "name" : "224a97d6bc54",
+  "cluster_name" : "docker-cluster",
+  "cluster_uuid" : "uy1aMPBSQqq5KDIXZvH-4w",
   "version" : {
-    "number" : "2.1.1",
-    "build_hash" : "40e2c53a6b6c2972b3d13846e450e66f4375bd71",
-    "build_timestamp" : "2015-12-15T13:05:55Z",
+    "number" : "7.6.2",
+    "build_flavor" : "default",
+    "build_type" : "docker",
+    "build_hash" : "ef48eb35cf30adf4db14086e8aabd07ef6fb113f",
+    "build_date" : "2020-03-26T06:34:37.794943Z",
     "build_snapshot" : false,
-    "lucene_version" : "5.3.1"
+    "lucene_version" : "8.4.0",
+    "minimum_wire_compatibility_version" : "6.8.0",
+    "minimum_index_compatibility_version" : "6.0.0-beta1"
   },
   "tagline" : "You Know, for Search"
 }
+$
 ```
 While we are at it, let's get our Flask container running too. But before we get to that, we need a `Dockerfile`. In the last section, we used `python:3-onbuild` image as our base image. This time, however, apart from installing Python dependencies via `pip`, we want our application to also generate our [minified Javascript file](http://sf-foodtrucks.xyz/static/build/main.js) for production. For this, we'll require Nodejs. Since we need a custom build step, we'll start from the `ubuntu` base image to build our `Dockerfile` from scratch.
 
@@ -599,14 +613,13 @@ While we are at it, let's get our Flask container running too. But before we get
 Our [Dockerfile](https://github.com/prakhar1989/FoodTrucks/blob/master/Dockerfile) for the flask app looks like below -
 ```
 # start from base
-FROM ubuntu:14.04
-MAINTAINER Prakhar Srivastav <prakhar@prakhar.me>
+FROM ubuntu:latest
 
 # install system-wide deps for python and node
 RUN apt-get -yqq update
-RUN apt-get -yqq install python-pip python-dev
-RUN apt-get -yqq install nodejs npm
-RUN ln -s /usr/bin/nodejs /usr/bin/node
+RUN apt-get -yqq install python-pip python-dev curl gnupg
+RUN curl -sL https://deb.nodesource.com/setup_10.x | bash
+RUN apt-get install -yq nodejs
 
 # copy our application code
 ADD flask-app /opt/flask-app
@@ -627,9 +640,9 @@ Quite a few new things here so let's quickly go over this file. We start off wit
 
 We then use the `ADD` command to copy our application into a new volume in the container - `/opt/flask-app`. This is where our code will reside. We also set this as our working directory, so that the following commands will be run in the context of this location. Now that our system-wide dependencies are installed, we get around to install app-specific ones. First off we tackle Node by installing the packages from npm and running the build command as defined in our `package.json` [file](https://github.com/prakhar1989/FoodTrucks/blob/master/flask-app/package.json#L7-L9). We finish the file off by installing the Python packages, exposing the port and defining the `CMD` to run as we did in the last section.
 
-Finally, we can go ahead, build the image and run the container (replace `prakhar1989` with your username below).
+Finally, we can go ahead, build the image and run the container (replace `adaptiman` with your username below).
 ```
-$ docker build -t prakhar1989/foodtrucks-web .
+$ docker build -t adaptiman/foodtrucks-web .
 ```
 In the first run, this will take some time as the Docker client will download the ubuntu image, run all the commands and prepare your image. Re-running `docker build` after any subsequent changes you make to the application code will almost be instantaneous. Now let's try running our app.
 ```
