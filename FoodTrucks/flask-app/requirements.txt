@@ -1,8 +1,8 @@
 elasticsearch==6.3.0
-Flask==0.10.1
+Flask==1.0
 itsdangerous==0.24
 Jinja2==2.10.1
 MarkupSafe==0.23
-requests==2.8.1
-urllib3==1.23
-Werkzeug==0.11.2
+requests==2.20.0
+urllib3==1.24.2
+Werkzeug==0.15.3
