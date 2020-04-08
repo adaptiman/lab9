@@ -58,7 +58,7 @@ This document contains a series of several sections, each of which explains a pa
   - [2.2 Docker Images](#docker-images)
   - [2.3 Our First Image](#our-image)
   - [2.4 Dockerfile](#dockerfiles)
-  - [2.5 Docker on AWS](#docker-aws)
+  - [2.5 Docker on Azure](#docker-azure)
 - [3.0 Multi-container Environments](#multi-container)
   - [3.1 SF Food Trucks](#foodtrucks)
   - [3.2 Docker Network](#docker-network)
@@ -128,6 +128,7 @@ $ sudo apt update
 $ sudo apt upgrade
 $ sudo apt install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
 $ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+$ curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 $ sudo apt-key fingerprint 0EBFCD88
 $ sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 $ sudo apt update
@@ -335,22 +336,30 @@ Then there are official and user images, which can be both base and child images
 <a id="our-image"></a>
 ### 2.3 Our First Image
 
-Now that we have a better understanding of images, it's time to create our own. Our goal in this section will be to create an image that sandboxes a simple [Flask](http://flask.pocoo.org) application. For the purposes of this workshop, I've already created a fun little [Flask app](https://github.com/prakhar1989/docker-curriculum/tree/master/flask-app) that displays a random cat `.gif` every time it is loaded - because you know, who doesn't like cats? 
+Now that we have a better understanding of images, it's time to create our own. Our goal in this section will be to create an image that sandboxes a simple [Flask](http://flask.pocoo.org) application. For the purposes of this workshop, I've already created a fun little [Flask app](https://github.com/adaptiman/lab9/tree/master/flask-app) that displays a random cat `.gif` every time it is loaded - because you know, who doesn't like cats? 
 
-If you haven't already, please go ahead and clone the repository locally.
+If you haven't already, , take a minute to clone the Lab 9 repo so you'll have a copy of the lab files in your VM:
 
 ```
-$ git clone git@github.com:prakhar1989/docker-curriculum.git
+$ cd ~
+$ git clone git@github.com:adaptiman/lab9.git
 ```
 
 Before we get started creating the image, let's first test that the application works correctly locally. Step one is to `cd` into the `flask-app` directory and install the dependencies
 ```
-$ cd flask-app
+$ sudo apt install -y python-pip
+$ cd ~/lab9/flask-app
 $ pip install -r requirements.txt
 $ python app.py
+ * Serving Flask app "app" (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: off
  * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
 ```
-If all goes well, you should see the output as above. Head over to [http://localhost:5000](http://localhost:5000) to see the app in action.
+
+If all goes well, you should see the output as above. Head over to [http://localhost:5000](http://localhost:5000) to see the app in action. (Make sure that port 5000 is open on your VM.)
 
 > Note: If `pip install` is giving you permission denied errors, you might need to try running the command as `sudo`. If you prefer not installing packages system-wide, you can instead try `pip install --user -r requirements.txt`.
 
@@ -399,33 +408,28 @@ Now that we have our `Dockerfile`, we can build our image. The `docker build` co
 The section below shows you the output of running the same. Before you run the command yourself (don't forget the period), make sure to replace my username with yours. This username should be the same one you created when you registered on [Docker hub](https://hub.docker.com). If you haven't done that yet, please go ahead and create an account. The `docker build` command is quite simple - it takes an optional tag name with `-t` and a location of the directory containing the `Dockerfile`.
 
 ```
-$ docker build -t prakhar1989/catnip .
-Sending build context to Docker daemon 8.704 kB
-Step 1 : FROM python:3-onbuild
-# Executing 3 build triggers...
-Step 1 : COPY requirements.txt /usr/src/app/
- ---> Using cache
-Step 1 : RUN pip install --no-cache-dir -r requirements.txt
- ---> Using cache
-Step 1 : COPY . /usr/src/app
- ---> 1d61f639ef9e
-Removing intermediate container 4de6ddf5528c
-Step 2 : EXPOSE 5000
- ---> Running in 12cfcf6d67ee
- ---> f423c2f179d1
-Removing intermediate container 12cfcf6d67ee
-Step 3 : CMD python ./app.py
- ---> Running in f01401a5ace9
- ---> 13e87ed1fbc2
-Removing intermediate container f01401a5ace9
-Successfully built 13e87ed1fbc2
+$ docker build -t adaptiman/catnip .
+Sending build context to Docker daemon  8.192kB
+Step 1/3 : FROM python:3-onbuild
+3-onbuild: Pulling from library/python
+[...]
+Step 2/3 : EXPOSE 5000
+ ---> Running in 7a9434fababd
+Removing intermediate container 7a9434fababd
+ ---> 32a55367a26c
+Step 3/3 : CMD ["python", "./app.py"]
+ ---> Running in 004c941f5b9c
+Removing intermediate container 004c941f5b9c
+ ---> 05e89a25a119
+Successfully built 05e89a25a119
+Successfully tagged adaptiman/catnip:latest
 ```
 
 If you don't have the `python:3-onbuild` image, the client will first pull the image and then create your image. Hence, your output from running the command will look different from mine. Look carefully and you'll notice that the on-build triggers were executed correctly. If everything went well, your image should be ready! Run `docker images` and see if your image shows.
 
 The last step in this section is to run the image and see if it actually works (replacing my username with yours).
 ```
-$ docker run -p 8888:5000 prakhar1989/catnip
+$ docker run -p 8888:5000 adaptiman/catnip
  * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
 ```
 Head over to the URL specified, where your app should be live.
@@ -434,64 +438,76 @@ Head over to the URL specified, where your app should be live.
 
 Congratulations! You have successfully created your first docker image.
 
-<a id="docker-aws"></a>
-### 2.5 Docker on AWS
+<a id="docker-azure"></a>
+### 2.5 Docker on Azure
 
-What good is an application that can't be shared with friends, right? So in this section we are going to see how we can deploy our awesome application to the cloud so that we can share it with our friends! We're going to use AWS [Elastic Beanstalk](https://aws.amazon.com/elasticbeanstalk/) to get our application up and running in a few clicks. We'll also see how easy it is to make our application scalable and manageable with Beanstalk!
+What good is an application that can't be shared with friends, right? So in this section we are going to see how we can deploy our awesome application to the cloud so that we can share it with our friends! We're going to use Azure  [App Service](https://azure.microsoft.com/en-us/services/app-service/) to get our application up and running in a few clicks. We'll also see how easy it is to make our application scalable and manageable with App Service!
 
 ##### Docker push
-The first thing that we need to do before we deploy our app to AWS is to publish our image on a registry which can be accessed by AWS. There are many different [Docker registries](https://aws.amazon.com/ecr/) you can use (you can even host [your own](https://docs.docker.com/registry/deploying/)). For now, let's use [Docker Hub](https://hub.docker.com) to publish the image. To publish, just type
+The first thing that we need to do before we deploy our app to Azure is to publish our image on a registry which can be accessed by Azure. There are many different Docker registries include [AWS Elastic Container Registry](https://aws.amazon.com/ecr/), [Azure Container Registry](https://azure.microsoft.com/en-us/services/container-registry/), and [Docker Hub](https://hub.docker.com/). You can even host [your own](https://docs.docker.com/registry/deploying/). For now, let's use [Docker Hub](https://hub.docker.com) to publish the image. To publish, just type
 ```
-$ docker push prakhar1989/catnip
+$ docker push adaptiman/catnip
 ```
+Remember to replace the name of the image tag above with yours. It is important to have the format of `username/image_name` so that the client knows where to publish.
+
 If this is the first time you are pushing an image, the client will ask you to login. Provide the same credentials that you used for logging into Docker Hub.
 
 ```
 $ docker login
-Username: prakhar1989
-WARNING: login credentials saved in /Users/prakhar/.docker/config.json
+Username: <yourdockerhubname>
+Authenticating with existing credentials...
+WARNING! Your password will be stored unencrypted in /home/adaptiman/.docker/config.json.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+
 Login Succeeded
+$
 ```
 
-Remember to replace the name of the image tag above with yours. It is important to have the format of `username/image_name` so that the client knows where to publish.
+Once that is done, you can view your image on Docker Hub. For example, here's the [web page](https://hub.docker.com/r/adaptiman/catnip/) for my image.
 
-Once that is done, you can view your image on Docker Hub. For example, here's the [web page](https://hub.docker.com/r/prakhar1989/catnip/) for my image.
-
-> Note: One thing that I'd like to clarify before we go ahead is that it is not **imperative** to host your image on a public registry (or any registry) in order to deploy to AWS. In case you're writing code for the next million-dollar unicorn startup you can totally skip this step. The reason why we're pushing our images publicly is that it makes deployment super simple by skipping a few intermediate configuration steps.
+> Note: One thing that I'd like to clarify before we go ahead is that it is not **imperative** to host your image on a public registry (or any registry) in order to deploy to a cloud service provider. In case you're writing code for the next million-dollar unicorn startup, you can totally skip this step. The reason why we're pushing our images publicly is that it makes deployment super simple by skipping a few intermediate configuration steps.
 
 Now that your image is online, anyone who has docker installed can play with your app by typing just a single command.
 ```
-$ docker run -p 8888:5000 prakhar1989/catnip
+$ docker run -p 8888:5000 adaptiman/catnip
 ```
 If you've pulled your hair in setting up local dev environments / sharing application configuration in the past, you very well know how awesome this sounds. That's why Docker is so cool!
 
 
-##### Beanstalk
-AWS Elastic Beanstalk (EB) is a PaaS (Platform as a Service) offered by AWS. If you've used Heroku, Google App Engine etc. you'll feel right at home. As a developer, you just tell EB how to run your app and it takes care of the rest - including scaling, monitoring and even updates. In April 2014, EB added support for running single-container Docker deployments which is what we'll use to deploy our app. Although EB has a very intuitive [CLI](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3.html), it does require some setup, and to keep things simple we'll use the web UI to launch our application.
+##### Azure App Services
+Azure App Services is a PaaS (Platform as a Service) offered by Microsoft.  As a developer/system administrator, you just tell App Services how to run your app and it takes care of the rest - including scaling, monitoring and even updates. App Services has support for running container orchestration using Kubernetes, or single-container Docker deployments which is what we'll use to deploy our app. Although Azure App Service has a good [CLI](https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest), it does require some setup, and to keep things simple we'll use the web UI to launch our application.
 
-To follow along, you need a functioning [AWS](http://aws.amazon.com) account. If you haven't already, please go ahead and do that now - you will need to enter your credit card information. But don't worry, it's free and anything we do in this tutorial will also be free! Let's get started.
+To follow along, you need a functioning [Azure](http://portal.azure.com) account. If you haven't already, please go ahead and do that now - you may need to send me your email address so I can update your Azure credits. Please refer to the course Announcements in eCampus. Let's get started.
 
 Here are the steps:
 
-- Login to your AWS [console](http://console.aws.amazon.com).
-- Click on Elastic Beanstalk. It will be in the compute section on the top left. Alternatively, just click [here](https://console.aws.amazon.com/elasticbeanstalk) to access the EB console.
+- Login to your Azure [portal](http://portal.azure.com).
+- Click on App Services. If it's not displayed, search for it in the top search box. From the App Services Window, click `+Add` to get the Web App page:
 
-<img src="images/eb-start.png" title="static">
+<img src="images/app-service-create.gif" title="static">
 
-- Click on "Create New Application" in the top right
-- Give your app a memorable (but unique) name and provide an (optional) description
-- In the **New Environment** screen, choose the **Web Server Environment**.
-- The following screen is shown below. Choose *Docker* from the predefined configuration. You can leave the *Environment type* as it is. Click Next.
+- Select the `Microsoft Azure Sponsorship 2` subscription
+- Create a new Resource Group labeled `Lab9RG`
+- Name your app as `<githubname>-catnip`, for example adaptiman-catnip. **It's very important to name your app in this format as this is how I will confirm your grade for this lab**
+- In the Publish field, select `Docker Container`
+- In the Operating System field, select `Linux`
+- In the Region, Select `South Central US`
+- Leave the default App Service Plan
+- Click `Next: Docker`
 
-<img src="images/eb-docker.png" title="static">
+The following screen is shown below. 
 
-- This is where we need to tell EB about our image. Open the `Dockerrun.aws.json` [file](https://github.com/prakhar1989/docker-curriculum/blob/master/flask-app/Dockerrun.aws.json) located in the `flask-app` folder and edit the `Name` of the image to your image's name. Don't worry, I'll explain the contents of the file shortly. When you are done, click on the radio button for "upload your own" and choose this file.
-- Next up, choose an environment name and a URL. This URL is what you'll share with your friends so make sure it's easy to remember.
-- For now, we won't be making changes in the *Additional Resources* section. Click Next and move to *Configuration Details*.
-- In this section, all you need to do is to check that the instance type is `t1.micro`. This is very important as this is the **free** instance by AWS. You can optionally choose a key-pair to login. If you don't know what that means, feel free to ignore this for now. We'll leave everything else to the default and forge ahead.
-- We also don't need to provide any *Environment Tags* and *Permissions*, so without batting an eyelid, you can click Next twice in succession. At the end, the screen shows us the *Review* page. If everything looks good, go ahead and press the **Launch** button.
-- The final screen that you see will have a few spinners indicating that your environment is being set up. It typically takes around 5 minutes for the first-time setup.
+<img src="images/docker-setup.gif" title="static">
 
+- In the Options field, select `Single Container`
+- In the Image Source field, select `Docker Hub`
+- In the Access Type field, select `Public`
+- In the Image and Tag field, enter your image namge as `<dockerhubname>/catnip`, for example adaptiman/catnip (My docker name is coincidentally the same as my Github name).
+- Leave the Startup Command blank, as the entrypoint is specified in the Dockerfile.
+- Click `Review + Create`
+- If there are no errors, Click `Create`
+ 
 While we wait, let's quickly see what the `Dockerrun.aws.json` file contains. This file is basically an AWS specific file that tells EB details about our application and docker configuration.
 
 ```
