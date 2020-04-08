@@ -642,11 +642,12 @@ We then use the `ADD` command to copy our application into a new volume in the c
 
 Finally, we can go ahead, build the image and run the container (replace `adaptiman` with your username below).
 ```
-$ docker build -t adaptiman/foodtrucks-web .
+$ cd ~/code/Lab9/FoodTrucks
+docker build -t adaptiman/foodtrucks-web .
 ```
 In the first run, this will take some time as the Docker client will download the ubuntu image, run all the commands and prepare your image. Re-running `docker build` after any subsequent changes you make to the application code will almost be instantaneous. Now let's try running our app.
 ```
-$ docker run -P prakhar1989/foodtrucks-web
+$ docker run -P adaptiman/foodtrucks-web
 Unable to connect to ES. Retying in 5 secs...
 Unable to connect to ES. Retying in 5 secs...
 Unable to connect to ES. Retying in 5 secs...
