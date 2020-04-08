@@ -59,6 +59,7 @@ This document contains a series of several sections, each of which explains a pa
   - [2.3 Our First Image](#our-image)
   - [2.4 Dockerfile](#dockerfiles)
   - [2.5 Docker on Azure](#docker-azure)
+- [3.0 Submitting the Lab](#submitlab)
 - [References](#references)
 
 
@@ -509,6 +510,30 @@ Hopefully by now, our instance should be ready. Head over to the  resource's pag
 Go ahead and open the URL in your browser and you should see the application in all its glory. Feel free to email / IM / snapchat this link to your friends and family so that they can enjoy a few cat gifs, too.
 
 Congratulations! You have deployed your first Docker application in Azure App Services! That might seem like a lot of steps, but with the command-line tool for Azure, you can automate the entire process in a few keystrokes! Hopefully you agree that Docker takes away a lot of the pains of building and deploying applications in the cloud. I would encourage you to read about diferent type of [Azure containers](https://azure.microsoft.com/en-us/product-categories/containers/) to get an idea of what features exist.
+
+___________
+
+<a href="#table-of-contents" class="top" id="preface">Top</a>
+<a id="submitlab"></a>
+## 3.0 Submitting the Lab
+
+In order to submit, the lab, you should complete all of the steps listed in this document. Then, on your Docker Development VM, run the vm_report program filling in the required information:
+```
+$ ~/lab9/vm_report
+
+Collecting information about the VM...
+Found Docker 19.03.8
+Found IPv4 address 40.124.1.142
+Your name: David Sweeney
+GitHub username: adaptiman
+TAMU UIN: 501001234
+
+Sending payload...
+Response returned with code 200 (good). Your VM has been recorded.
+$
+
+```
+The program should return a 200 (good) code. If not, please contact me for further instructions.
 ___________
 
 <a href="#table-of-contents" class="top" id="preface">Top</a>
