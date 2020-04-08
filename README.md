@@ -108,7 +108,7 @@ Now that your VM is up and running, take a minute to clone the Lab 9 repo so you
 
 ```
 $ cd ~
-$ git clone git@github.com:adaptiman/lab9.git
+$ git clone https://github.com/adaptiman/lab9.git
 ```
 
 
