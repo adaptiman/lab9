@@ -335,7 +335,7 @@ If you haven't already, , take a minute to clone the Lab 9 repo so you'll have a
 
 ```
 $ cd ~
-$ git clone git@github.com:adaptiman/lab9.git
+$ https://github.com/adaptiman/lab9.git
 ```
 
 Before we get started creating the image, let's first test that the application works correctly locally. Step one is to `cd` into the `flask-app` directory and install the dependencies
