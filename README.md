@@ -335,13 +335,13 @@ If you haven't already, , take a minute to clone the Lab 9 repo so you'll have a
 
 ```
 $ cd ~
-$ https://github.com/adaptiman/lab9.git
+$ git clone https://github.com/adaptiman/lab9.git
 ```
 
 Before we get started creating the image, let's first test that the application works correctly locally. Step one is to `cd` into the `flask-app` directory and install the dependencies
 ```
 $ sudo apt install -y python-pip
-$ cd ~/lab9/flask-app
+$ cd ~/lab9/catnip-app
 $ pip install -r requirements.txt
 $ python app.py
  * Serving Flask app "app" (lazy loading)
@@ -422,7 +422,7 @@ If you don't have the `python:3-onbuild` image, the client will first pull the i
 
 The last step in this section is to run the image and see if it actually works (replacing my username with yours).
 ```
-$ docker run -p 8888:5000 adaptiman/catnip
+$ docker run -p 5000:5000 adaptiman/catnip
  * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
 ```
 Head over to the URL specified, where your app should be live.
