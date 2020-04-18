@@ -529,11 +529,11 @@ GitHub username: adaptiman
 TAMU UIN: 501001234
 
 Sending payload...
-Response returned with code 200 (good). Your VM has been recorded.
+Response returned with code 204 (good). Your VM has been recorded.
 $
 
 ```
-The program should return a 200 (good) code. If not, please contact me for further instructions.
+The program should return a 2XX (good) code. If not, please contact me for further instructions.
 ___________
 
 <a href="#table-of-contents" class="top" id="preface">Top</a>
